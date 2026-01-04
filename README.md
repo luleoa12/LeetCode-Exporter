@@ -16,8 +16,8 @@ A command-line tool to export your accepted LeetCode submissions with a clean, o
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/luleoa12/lc-exporter.git
-   cd lc-exporter
+   git clone https://github.com/luleoa12/LeetCode-Exporter.git
+   cd LeetCode-Exporter
    ```
 
 2. **Install dependencies**
