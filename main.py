@@ -229,7 +229,7 @@ def main():
         console.print("[yellow]No accepted submissions found![/yellow]")
         return
     else:
-        console.print(f"[bold]Found 5 accepted submissions[/bold]\n")
+        console.print(f"[bold]Found [green]{len(accepted)}[/green] accepted submissions[/bold]\n")
     
     table = Table(
         show_header=True,

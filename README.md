@@ -2,6 +2,14 @@
 
 A command-line tool to export your accepted LeetCode submissions with a clean, organized structure. Perfect for backing up your solutions or building a personal code library.
 
+<p>
+  <img
+    src=".github/screenshots/preview.png"
+    width="700"
+    style="border-radius: 4px; "
+  />
+</p>
+
 ## ✨ Features
 
 - Fetch all your accepted LeetCode submissions
@@ -35,6 +43,17 @@ To use this tool, you'll need to provide your LeetCode session information:
 4. Find and copy the values for:
    - `LEETCODE_SESSION`
    - `csrftoken`
+
+<details>
+  <summary><strong>How to find your LeetCode cookies</strong></summary>
+
+  <img
+    src=".github/screenshots/instructions.png"
+    width="700"
+    style="border-radius: 12px; border: 1px solid #d0d7de;"
+  />
+</details>
+
 
 ## 🛠️ Usage
 
