@@ -4,8 +4,8 @@ from rich.console import Console
 from rich.table import Table
 from rich.progress import Progress
 from rich.panel import Panel
-from rich import print as rprint
-from rich.text import Text
+from rich import print 
+from rich.style import Style
 import time
 from getpass import getpass
 
@@ -123,7 +123,7 @@ def fetch_all_accepted():
 
         offset += limit
 
-    return accepted
+    return dedupe_latest(accepted)
 
 def dedupe_latest(subs):
     latest = {}
@@ -214,52 +214,66 @@ def main():
     console = Console()
     display_welcome()
     
+    # debug mode - set to True to process only first 5 submissions
+    DEBUG_MODE = False
+    
     if not LEETCODE_SESSION or not LEETCODE_CSRF:
         console.print("[red]Error: Missing LeetCode credentials[/red]")
         console.print("Please set LEETCODE_SESSION and LEETCODE_CSRF environment variables")
         return
     
+    console.print("\n[cyan]Fetching accepted submissions...[/cyan]")
+    accepted = fetch_all_accepted()
+    
+    if not accepted:
+        console.print("[yellow]No accepted submissions found![/yellow]")
+        return
+    else:
+        console.print(f"[bold]Found 5 accepted submissions[/bold]\n")
+    
+    table = Table(
+        show_header=True,
+        header_style=Style(color="magenta", bold=False)
+    )
+    table.add_column("#", width=4)
+    table.add_column("Problem", style="cyan", no_wrap=True)
+    table.add_column("Language", style="green")
+    table.add_column("Date", style="yellow")
+
+    submissions_to_process = accepted[:5] if DEBUG_MODE else accepted
+    total_submissions = len(submissions_to_process)
+    
     with Progress() as progress:
-        task = progress.add_task("[cyan]Fetching accepted submissions...", total=1)
-        accepted = fetch_all_accepted()
-        progress.update(task, completed=1, description="[green]Submissions fetched!")
+        process_task = progress.add_task(
+            "[cyan]Processing submissions...", 
+            total=total_submissions
+        )
         
-        if not accepted:
-            console.print("[yellow]No accepted submissions found![/yellow]")
-            return
-            
-        console.print(f"\n[bold]Found [green]{len(accepted)}[/green] accepted submissions[/bold]")
-        
-        table = Table(show_header=True, header_style="bold magenta")
-        table.add_column("#", width=4)
-        table.add_column("Problem", style="cyan", no_wrap=True)
-        table.add_column("Language", style="green")
-        table.add_column("Date", style="yellow")
-        
-        process_task = progress.add_task("[cyan]Processing submissions...", total=len(accepted))
-        
-        for i, submission in enumerate(accepted, 1):
-            progress.update(process_task, advance=1, 
-                         description=f"[cyan]Processing {i}/{len(accepted)}: {submission['titleSlug']}")
+        for i, submission in enumerate(submissions_to_process, 1):
+            progress.update(process_task, 
+                         advance=1, 
+                         description=f"[cyan]Processing {i}/{total_submissions}: {submission['titleSlug']}")
             
             table.add_row(
                 str(i),
                 submission['titleSlug'],
                 submission['lang'],
-                time.strftime('%Y-%m-%d %H:%M', time.localtime(int(submission['timestamp'])))
+                time.strftime('%Y-%m-%d', time.localtime(int(submission['timestamp'])))
             )
             
-            code = fetch_code(submission['id'])
-            if code:
-                save_solution(submission, code)
+            try:
+                code = fetch_code(submission['id'])
+                if code:
+                    save_solution(submission, code)
+            except Exception as e:
+                print(f"[yellow]Warning: Could not process {submission['titleSlug']}: {str(e)}[/yellow]")
             
             time.sleep(0.1)
-        
-        console.print("\n[bold]Processed Submissions:[/bold]")
-        console.print(table)
-        
-        console.print("\n[bold green]✓ All submissions processed successfully![/bold green]")
-        console.print("[yellow]Solutions have been saved to their respective directories.[/yellow]")
+    
+    console.print("[bold]Processed Submissions:[/bold]")
+    console.print(table)
+    console.print("\n[bold green]✓ All submissions processed successfully![/bold green]")
+    console.print("[yellow]Solutions have been saved to their respective directories.[/yellow]")
 
 if __name__ == "__main__":
     main()
