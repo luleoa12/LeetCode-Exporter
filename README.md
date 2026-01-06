@@ -5,8 +5,6 @@ A command-line tool to export your accepted LeetCode submissions with a clean, o
 <p>
   <img
     src=".github/screenshots/preview.png"
-    width="700"
-    style="border-radius: 4px; "
   />
 </p>
 
